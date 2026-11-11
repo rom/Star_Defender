@@ -1,0 +1,6 @@
+# build output
+/web/game.wasm
+/web/wasm_exec.js
+/bin/
+# runtime data (high scores, custom levels)
+/data/
