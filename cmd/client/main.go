@@ -7,6 +7,7 @@ package main
 
 import (
 	"encoding/json"
+	"math"
 	"strconv"
 	"syscall/js"
 	"time"
@@ -36,11 +37,13 @@ type app struct {
 	doc    js.Value
 	canvas js.Value
 
-	mode    int
-	t, last float64
-	acc     float64
-	keys    map[string]bool
-	tapped  map[string]bool // pressed since the last simulation step, even if already released
+	mode      int
+	shownMode int  // last mode published to the page (see syncMode)
+	touch     bool // a touch screen is in use: show on-screen controls
+	t, last   float64
+	acc       float64
+	keys      map[string]bool
+	tapped    map[string]bool // pressed since the last simulation step, even if already released
 
 	game     *game.Game
 	levels   []level.Level // the campaign
@@ -81,7 +84,9 @@ func main() {
 	}
 	a.ed = newEditor(a)
 	a.name = loadName()
+	a.shownMode = -1
 	a.bindInput()
+	a.bindTouch()
 	a.audio.setSong(0, 0)
 
 	var frame js.Func
@@ -157,7 +162,7 @@ func (a *app) bindInput() {
 			a.paused = true
 		}
 	})
-	a.listen(a.canvas, "mousedown", func(e js.Value) {
+	a.listen(a.canvas, "pointerdown", func(e js.Value) {
 		a.audio.init()
 		// take focus away from any editor form field
 		if ae := a.doc.Get("activeElement"); !ae.IsNull() && !ae.IsUndefined() {
@@ -172,12 +177,21 @@ func (a *app) bindInput() {
 			}
 		case modeScores:
 			a.toTitle()
+		case modeList:
+			if i := a.listTop() + int(math.Floor((y-159)/26)); y >= 159 && i < a.listTop()+listRows && i < len(a.list) {
+				a.listSel = i
+				a.playListed()
+			}
+		case modePlay:
+			if a.paused {
+				a.paused = false
+			}
 		case modeEditor:
 			e.Call("preventDefault")
 			a.ed.mouseDown(x, y, e.Get("button").Int())
 		}
 	})
-	a.listen(a.canvas, "mousemove", func(e js.Value) {
+	a.listen(a.canvas, "pointermove", func(e js.Value) {
 		x, y := a.mousePos(e)
 		switch a.mode {
 		case modeTitle:
@@ -188,8 +202,9 @@ func (a *app) bindInput() {
 			a.ed.mouseMove(x, y)
 		}
 	})
-	a.listen(win, "mouseup", func(e js.Value) { a.ed.drag = false })
-	a.listen(a.canvas, "mouseleave", func(e js.Value) { a.ed.inside = false })
+	a.listen(win, "pointerup", func(e js.Value) { a.ed.drag = false })
+	a.listen(win, "pointercancel", func(e js.Value) { a.ed.drag = false })
+	a.listen(a.canvas, "pointerleave", func(e js.Value) { a.ed.inside = false })
 	a.listen(a.canvas, "contextmenu", func(e js.Value) { e.Call("preventDefault") })
 	a.canvas.Call("addEventListener", "wheel", js.FuncOf(func(this js.Value, args []js.Value) any {
 		if a.mode == modeEditor {
@@ -283,6 +298,10 @@ func (a *app) onKey(code, key string) {
 				a.listSel++
 				a.audio.play("select")
 			}
+		case "PageUp":
+			a.listSel = max(0, a.listSel-listRows)
+		case "PageDown":
+			a.listSel = max(0, min(len(a.list)-1, a.listSel+listRows))
 		case "Enter", "Space":
 			a.playListed()
 		case "Escape":
@@ -521,6 +540,7 @@ func (a *app) frame(now float64) {
 	}
 	a.t += dt
 	a.audio.tick()
+	a.syncMode()
 
 	switch a.mode {
 	case modePlay:
@@ -555,7 +575,11 @@ func (a *app) drawPlay() {
 	gm := a.game
 	switch {
 	case a.paused:
-		a.banner("PAUSED", "P TO RESUME · ESC TO QUIT", "#8cf")
+		if a.touch {
+			a.banner("PAUSED", "TAP TO RESUME", "#8cf")
+		} else {
+			a.banner("PAUSED", "P TO RESUME · ESC TO QUIT", "#8cf")
+		}
 	case gm.State == game.Clear:
 		sub := "COLONIST BONUS " + strconv.Itoa(gm.Bonus)
 		if !a.single && a.levelIdx+1 >= len(a.levels) {
@@ -575,6 +599,9 @@ func (a *app) drawPlay() {
 			sub = "PRACTICE"
 			if a.returnTo == modeEditor {
 				sub = "TEST PLAY · ESC RETURNS TO THE EDITOR"
+				if a.touch {
+					sub = "TEST PLAY · ✕ RETURNS TO THE EDITOR"
+				}
 			}
 		}
 		a.banner(title, sub, "#8cf")
@@ -604,8 +631,13 @@ func (a *app) drawTitle() {
 		}
 		g.text(it, viewW/2, y, 26, col, "center")
 	}
-	g.text("ARROWS / WASD  FLY     SPACE  FIRE     B  SMART BOMB     H  WARP", viewW/2, 478, 13, "#8cf", "center")
-	g.text("P  PAUSE     M  MUTE     N  MUSIC ON/OFF     ESC  QUIT", viewW/2, 498, 13, "#8cf", "center")
+	if a.touch {
+		g.text("TAP TO CHOOSE", viewW/2, 478, 13, "#8cf", "center")
+		g.text("IN FLIGHT: STICK ON THE LEFT, FIRE · BOMB · WARP ON THE RIGHT", viewW/2, 498, 13, "#8cf", "center")
+	} else {
+		g.text("ARROWS / WASD  FLY     SPACE  FIRE     B  SMART BOMB     H  WARP", viewW/2, 478, 13, "#8cf", "center")
+		g.text("P  PAUSE     M  MUTE     N  MUSIC ON/OFF     ESC  QUIT", viewW/2, 498, 13, "#8cf", "center")
+	}
 }
 
 func (a *app) drawName() {
@@ -622,6 +654,12 @@ func (a *app) drawName() {
 	cursor := "_"
 	if int(a.t*3)%2 == 0 || a.submitting {
 		cursor = " "
+	}
+	if a.touch { // the HTML name field is shown instead
+		if a.submitting {
+			g.text("SAVING...", viewW/2, 470, 14, "#89a", "center")
+		}
+		return
 	}
 	g.text(a.name+cursor, viewW/2, 340, 34, "#fff", "center")
 	msg := "ENTER TO SAVE · ESC TO SKIP"
@@ -659,7 +697,11 @@ func (a *app) drawScores() {
 	if a.rank > 10 {
 		g.text("YOUR RANK: "+strconv.Itoa(a.rank), viewW/2, 478, 16, "#ff6", "center")
 	}
-	g.text("PRESS ENTER", viewW/2, 506, 14, "#89a", "center")
+	if a.touch {
+		g.text("TAP TO CONTINUE", viewW/2, 506, 14, "#89a", "center")
+	} else {
+		g.text("PRESS ENTER", viewW/2, 506, 14, "#89a", "center")
+	}
 }
 
 func (a *app) drawList() {
@@ -669,15 +711,8 @@ func (a *app) drawList() {
 	if a.listMsg != "" {
 		g.text(a.listMsg, viewW/2, 146, 15, "#f88", "center")
 	}
-	const rows = 12
-	top := a.listSel - rows/2
-	if top > len(a.list)-rows {
-		top = len(a.list) - rows
-	}
-	if top < 0 {
-		top = 0
-	}
-	for i := top; i < len(a.list) && i < top+rows; i++ {
+	top := a.listTop()
+	for i := top; i < len(a.list) && i < top+listRows; i++ {
 		s := a.list[i]
 		y := 172 + float64(i-top)*26
 		col := "#9ab"
@@ -698,7 +733,25 @@ func (a *app) drawList() {
 		}
 		g.text(by, 746, y, 13, col, "right")
 	}
-	g.text("↑↓ SELECT · ENTER PLAY · ESC BACK", viewW/2, 506, 14, "#89a", "center")
+	if a.touch {
+		g.text("TAP A LEVEL TO PLAY · ▲▼ SCROLL · ✕ BACK", viewW/2, 506, 14, "#89a", "center")
+	} else {
+		g.text("↑↓ SELECT · ENTER PLAY · ESC BACK", viewW/2, 506, 14, "#89a", "center")
+	}
+}
+
+const listRows = 12
+
+// listTop is the index of the first visible row of the level list.
+func (a *app) listTop() int {
+	top := a.listSel - listRows/2
+	if top > len(a.list)-listRows {
+		top = len(a.list) - listRows
+	}
+	if top < 0 {
+		top = 0
+	}
+	return top
 }
 
 // ---------------------------------------------------------------- storage

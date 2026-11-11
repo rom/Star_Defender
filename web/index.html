@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Star Defender</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -10,7 +12,32 @@
 <main id="stage">
   <canvas id="game" width="960" height="540"></canvas>
   <div id="loading">Loading Star Defender…</div>
+  <form id="namebox" autocomplete="off">
+    <input id="name-input" maxlength="12" aria-label="Your name" placeholder="YOUR NAME"
+           autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="done">
+    <div><button type="submit">Save</button><button type="button" id="name-skip">Skip</button></div>
+  </form>
 </main>
+
+<!-- on-screen controls, shown on touch screens only -->
+<div id="touch">
+  <div id="stick" class="c-play"><div id="knob"></div></div>
+  <div id="pad" class="c-play">
+    <button data-key="KeyH" aria-label="Warp">WARP</button>
+    <button data-key="KeyB" aria-label="Smart bomb">BOMB</button>
+    <button data-key="Space" class="fire" aria-label="Fire">FIRE</button>
+  </div>
+  <div id="pager" class="c-list">
+    <button data-key="PageUp" aria-label="Scroll up">▲</button>
+    <button data-key="PageDown" aria-label="Scroll down">▼</button>
+  </div>
+  <div id="sys">
+    <button data-key="KeyM" aria-label="Mute">♪</button>
+    <button data-key="KeyP" class="c-play" aria-label="Pause">II</button>
+    <button data-key="Escape" class="c-back" aria-label="Back">✕</button>
+  </div>
+  <p id="rotate">Turn your device sideways for a bigger view</p>
+</div>
 
 <aside id="editor">
   <h1>Level editor</h1>

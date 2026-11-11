@@ -10,6 +10,7 @@ user-made levels. There are no third-party dependencies.
 
 - 30 campaign levels with eight enemy types and six boss fights
 - Synthesised sound effects and music (Web Audio, no sample files)
+- Keyboard or touch controls, so it plays on phones and tablets
 - Server-side high-score table
 - Level editor with test play; saved levels are playable by everyone on the server
 
@@ -51,6 +52,12 @@ flags: `-web web` (static files) and `-data data` (where `scores.json` and
 | P | Pause |
 | M / N | Mute everything / music only |
 | Esc | Quit to the menu |
+
+On a phone or tablet the game shows on-screen controls instead: a stick on
+the left to fly, **FIRE**, **BOMB** and **WARP** on the right, and small
+mute, pause and quit buttons. Menus are tapped. Landscape gives the biggest
+view. To play from a phone, open `http://<your-computer's-address>:8080` while
+on the same network.
 
 **Snatchers** dive for colonists and carry them skywards. Shoot the snatcher,
 catch the falling colonist and set them down again for bonus points. A
