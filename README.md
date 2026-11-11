@@ -21,16 +21,24 @@ Requires Go 1.24 or newer.
 make run
 ```
 
-Then open <http://localhost:8080>. Without `make`:
+Then open <http://localhost:8080>. To use another port:
+
+```bash
+make run PORT=9000
+```
+
+Without `make`:
 
 ```bash
 GOOS=js GOARCH=wasm go build -o web/game.wasm ./cmd/client
 cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/
-go run ./cmd/server
+go run ./cmd/server -port 9000
 ```
 
-Server flags: `-addr :8080`, `-web web` (static files), `-data data` (where
-`scores.json` and `levels.json` are kept).
+The port is taken from `-port`, else the `PORT` environment variable, else
+8080. Use `-addr 127.0.0.1:9000` to also choose the interface. Other server
+flags: `-web web` (static files) and `-data data` (where `scores.json` and
+`levels.json` are kept).
 
 ## Playing
 
