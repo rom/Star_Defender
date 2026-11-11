@@ -1,4 +1,5 @@
 GOROOT := $(shell go env GOROOT)
+PORT ?= 8080
 
 .PHONY: all client server run test clean
 
@@ -13,7 +14,7 @@ server:
 	go build -o bin/server ./cmd/server
 
 run: all
-	./bin/server
+	./bin/server -port $(PORT)
 
 test:
 	go vet ./...
