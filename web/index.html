@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Star Defender</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="stage">
+  <canvas id="game" width="960" height="540"></canvas>
+  <div id="loading">Loading Star Defender…</div>
+</main>
+
+<aside id="editor">
+  <h1>Level editor</h1>
+
+  <section>
+    <label>Name <input id="ed-name" maxlength="32"></label>
+    <label>Author <input id="ed-author" maxlength="24"></label>
+    <div class="row">
+      <label title="World width in screens">Width <input id="ed-screens" type="number" min="2" max="12" step="1"></label>
+      <label title="Enemy speed multiplier">Speed <input id="ed-speed" type="number" min="0.5" max="2.5" step="0.05"></label>
+      <label title="Enemy fire-rate multiplier">Fire <input id="ed-aggr" type="number" min="0.2" max="2.5" step="0.05"></label>
+    </div>
+    <label>Colour <input id="ed-hue" type="range" min="0" max="359"></label>
+  </section>
+
+  <section>
+    <h2>Tools</h2>
+    <div id="ed-tools" class="grid">
+      <button data-tool="terrain" title="Drag to sculpt the ground">Terrain</button>
+      <button data-tool="colonist">Colonist</button>
+      <button data-tool="erase" title="Click an enemy or colonist to remove it">Erase</button>
+      <button data-tool="snatcher" title="Abducts colonists">Snatcher</button>
+      <button data-tool="reaver" title="Fast hunter">Reaver</button>
+      <button data-tool="bomber" title="Lays mines">Bomber</button>
+      <button data-tool="hive" title="Bursts into wasps">Hive</button>
+      <button data-tool="wasp" title="Small and quick">Wasp</button>
+      <button data-tool="stalker" title="Strafes and snipes">Stalker</button>
+      <button data-tool="turret" title="Ground gun">Turret</button>
+      <button data-tool="dreadnought" title="Boss">Dreadnought</button>
+    </div>
+    <div class="row">
+      <button id="ed-random">Random hills</button>
+      <button id="ed-smooth">Smooth</button>
+      <button id="ed-flat">Flatten</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Waves <small>reinforcements that warp in</small></h2>
+    <table>
+      <thead><tr><th>At (s)</th><th>Enemy</th><th>Count</th><th></th></tr></thead>
+      <tbody id="ed-waves"></tbody>
+    </table>
+    <button id="ed-addwave">+ Add wave</button>
+  </section>
+
+  <section>
+    <h2>Library</h2>
+    <div class="row">
+      <select id="ed-load" aria-label="Level to load"></select>
+      <button id="ed-loadbtn">Load</button>
+    </div>
+    <div class="row">
+      <button id="ed-new">New</button>
+      <button id="ed-save" class="primary">Save</button>
+      <button id="ed-delete">Delete</button>
+    </div>
+    <div class="row">
+      <button id="ed-test" class="primary">▶ Test play</button>
+      <button id="ed-exit">Exit editor</button>
+    </div>
+    <p id="ed-status" role="status"></p>
+  </section>
+</aside>
+
+<script src="wasm_exec.js"></script>
+<script>
+(async () => {
+  const loading = document.getElementById("loading");
+  try {
+    const go = new Go();
+    const res = await fetch("game.wasm");
+    if (!res.ok) throw new Error("game.wasm: HTTP " + res.status);
+    // instantiateStreaming needs the right MIME type; fall back if a proxy mangles it
+    let inst;
+    try {
+      inst = (await WebAssembly.instantiateStreaming(res.clone(), go.importObject)).instance;
+    } catch (e) {
+      inst = (await WebAssembly.instantiate(await res.arrayBuffer(), go.importObject)).instance;
+    }
+    go.run(inst);
+  } catch (e) {
+    loading.textContent = "Could not start the game: " + e.message;
+  }
+})();
+</script>
+</body>
+</html>
