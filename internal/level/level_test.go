@@ -4,8 +4,8 @@ import "testing"
 
 func TestBuiltinLevelsValid(t *testing.T) {
 	ls := Builtin()
-	if len(ls) != 15 {
-		t.Fatalf("want 15 levels, got %d", len(ls))
+	if len(ls) != 30 {
+		t.Fatalf("want 30 levels, got %d", len(ls))
 	}
 	seen := map[string]bool{}
 	for _, l := range ls {

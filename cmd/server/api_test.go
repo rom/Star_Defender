@@ -73,8 +73,8 @@ func TestLevels(t *testing.T) {
 	h, _ := newTestHandler(t)
 	var list []level.Summary
 	do(t, h, "GET", "/api/levels", nil, &list)
-	if len(list) != 15 || !list[0].Builtin {
-		t.Fatalf("want the 15 built-ins, got %d", len(list))
+	if len(list) != 30 || !list[0].Builtin {
+		t.Fatalf("want the 30 built-ins, got %d", len(list))
 	}
 
 	var l level.Level
@@ -96,7 +96,7 @@ func TestLevels(t *testing.T) {
 	var again level.Level
 	do(t, h, "POST", "/api/levels", saved, &again)
 	do(t, h, "GET", "/api/levels", nil, &list)
-	if again.ID != saved.ID || len(list) != 16 || list[15].Name != "Renamed" {
+	if again.ID != saved.ID || len(list) != 31 || list[30].Name != "Renamed" {
 		t.Fatalf("update failed: %+v", list[len(list)-1])
 	}
 
