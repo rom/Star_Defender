@@ -166,3 +166,10 @@ body.touch[data-mode=name] #namebox {
 #namebox input { width: 14em; max-width: 80vw; text-align: center; text-transform: uppercase; -webkit-user-select: text; user-select: text; }
 #namebox div { display: flex; gap: 10px; }
 #namebox button[type=submit] { background: #17502f; border-color: #3c9; }
+
+/* narrow (portrait) phones: keep the stick and buttons from overlapping */
+@media (max-width: 480px) {
+  #stick { width: 120px; height: 120px; }
+  #pad { gap: 8px; }
+  #pad button { width: 52px; height: 52px; font-size: 11px; }
+}
