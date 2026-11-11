@@ -1,5 +1,5 @@
 // Package level defines the level format shared by the game client, the
-// level editor and the server, plus the fifteen built-in campaign levels.
+// level editor and the server, plus the built-in campaign levels.
 package level
 
 import (

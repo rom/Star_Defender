@@ -429,6 +429,9 @@ func (e *editor) wrap(x float64) float64 {
 	if x < 0 {
 		x += w
 	}
+	if x >= w { // a tiny negative x rounds up to exactly the width
+		x = 0
+	}
 	return x
 }
 

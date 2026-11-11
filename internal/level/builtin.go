@@ -69,6 +69,53 @@ var specs = []spec{
 	{"Mothership Down", 180, 10, 70, 300, 1.50, 1.50,
 		[]group{{"dreadnought", 3}, {"snatcher", 6}, {"turret", 4}, {"stalker", 2}, {"hive", 2}},
 		[]Wave{{20, "snatcher", 5}, {40, "reaver", 4}, {40, "stalker", 2}, {60, "snatcher", 5}}},
+
+	// ---- second campaign: the counter-attack
+	{"Aftermath", 180, 10, 35, 125, 1.50, 1.45,
+		[]group{{"snatcher", 9}, {"bomber", 3}, {"hive", 2}},
+		[]Wave{{12, "snatcher", 5}, {26, "reaver", 3}, {26, "stalker", 1}, {40, "snatcher", 5}}},
+	{"Glass Desert", 190, 10, 14, 45, 1.55, 1.50,
+		[]group{{"snatcher", 8}, {"stalker", 3}, {"reaver", 3}},
+		[]Wave{{12, "snatcher", 6}, {24, "stalker", 2}, {36, "wasp", 8}, {48, "snatcher", 5}}},
+	{"Mine Belt", 190, 10, 55, 180, 1.55, 1.55,
+		[]group{{"snatcher", 7}, {"bomber", 7}, {"turret", 3}},
+		[]Wave{{12, "bomber", 4}, {12, "snatcher", 4}, {28, "bomber", 3}, {28, "snatcher", 5}, {44, "stalker", 2}}},
+	{"Hornet Nest", 200, 10, 60, 55, 1.60, 1.55,
+		[]group{{"snatcher", 6}, {"hive", 7}, {"wasp", 4}},
+		[]Wave{{12, "hive", 3}, {26, "snatcher", 6}, {40, "wasp", 10}, {54, "hive", 2}}},
+	{"Siege Engine", 180, 8, 65, 5, 1.60, 1.60,
+		[]group{{"dreadnought", 2}, {"snatcher", 6}, {"turret", 6}, {"bomber", 2}},
+		[]Wave{{18, "snatcher", 5}, {36, "stalker", 2}, {36, "snatcher", 4}, {54, "reaver", 4}}},
+	{"Blackout", 200, 10, 50, 235, 1.65, 1.65,
+		[]group{{"snatcher", 9}, {"stalker", 4}, {"hive", 2}},
+		[]Wave{{12, "snatcher", 5}, {24, "stalker", 3}, {36, "snatcher", 5}, {48, "reaver", 5}}},
+	{"Razorback", 200, 10, 100, 15, 1.70, 1.65,
+		[]group{{"snatcher", 8}, {"turret", 9}, {"bomber", 3}, {"stalker", 1}},
+		[]Wave{{12, "snatcher", 5}, {26, "bomber", 3}, {26, "snatcher", 4}, {40, "stalker", 3}}},
+	{"Reaver Tide", 210, 8, 30, 310, 1.70, 1.70,
+		[]group{{"snatcher", 6}, {"reaver", 8}, {"hive", 2}},
+		[]Wave{{10, "reaver", 4}, {22, "snatcher", 6}, {34, "reaver", 6}, {46, "snatcher", 5}, {46, "stalker", 2}}},
+	{"Crossfire", 210, 10, 75, 270, 1.75, 1.80,
+		[]group{{"snatcher", 8}, {"turret", 8}, {"stalker", 4}, {"bomber", 2}},
+		[]Wave{{12, "snatcher", 6}, {26, "stalker", 3}, {40, "snatcher", 5}, {40, "bomber", 3}}},
+	{"Triad", 200, 8, 55, 335, 1.75, 1.75,
+		[]group{{"dreadnought", 3}, {"snatcher", 7}, {"hive", 3}, {"stalker", 2}},
+		[]Wave{{18, "snatcher", 5}, {36, "reaver", 5}, {54, "snatcher", 5}, {54, "stalker", 2}}},
+	{"Long Night", 220, 10, 45, 215, 1.80, 1.85,
+		[]group{{"snatcher", 10}, {"bomber", 4}, {"hive", 4}, {"stalker", 3}},
+		[]Wave{{12, "snatcher", 6}, {24, "wasp", 8}, {36, "snatcher", 6}, {48, "reaver", 5}, {60, "stalker", 3}}},
+	{"Hell's Teeth", 220, 8, 110, 355, 1.85, 1.90,
+		[]group{{"snatcher", 9}, {"turret", 10}, {"reaver", 5}, {"bomber", 4}},
+		[]Wave{{12, "snatcher", 6}, {26, "reaver", 5}, {40, "snatcher", 6}, {40, "stalker", 3}}},
+	{"Extinction Line", 230, 6, 40, 85, 1.90, 2.00,
+		[]group{{"snatcher", 12}, {"reaver", 6}, {"stalker", 4}, {"hive", 3}},
+		[]Wave{{10, "snatcher", 6}, {22, "reaver", 6}, {34, "snatcher", 6}, {46, "stalker", 4}, {58, "wasp", 10}}},
+	{"Armada", 240, 10, 60, 195, 1.95, 2.05,
+		[]group{{"snatcher", 10}, {"bomber", 6}, {"hive", 5}, {"stalker", 4}, {"turret", 6}},
+		[]Wave{{12, "snatcher", 7}, {24, "bomber", 4}, {36, "reaver", 6}, {48, "snatcher", 6}, {60, "stalker", 4}}},
+	{"Final Stand", 240, 10, 80, 290, 2.00, 2.10,
+		[]group{{"dreadnought", 4}, {"snatcher", 8}, {"turret", 6}, {"stalker", 3}, {"hive", 3}},
+		[]Wave{{18, "snatcher", 6}, {36, "reaver", 6}, {36, "stalker", 3}, {54, "snatcher", 6}, {72, "dreadnought", 1}, {72, "reaver", 4}}},
 }
 
 // GenTerrain builds a seamless (wrapping) mountain range of n segments.
@@ -93,7 +140,7 @@ func GenTerrain(rng *rand.Rand, n int, rough float64) []int {
 
 var builtin []Level
 
-// Builtin returns the fifteen campaign levels, in order. The returned slice
+// Builtin returns the campaign levels, in order. The returned slice
 // is shared; callers must not modify it (use Clone).
 func Builtin() []Level {
 	if builtin != nil {

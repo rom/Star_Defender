@@ -245,6 +245,9 @@ func (g *Game) Wrap(x float64) float64 {
 	if x < 0 {
 		x += g.W
 	}
+	if x >= g.W { // a tiny negative x rounds up to exactly the width
+		x = 0
+	}
 	return x
 }
 

@@ -8,7 +8,7 @@ Everything is written in Go: the game is compiled to WebAssembly and draws on
 a `<canvas>`, and a small Go web server hosts it and stores high scores and
 user-made levels. There are no third-party dependencies.
 
-- 15 campaign levels with eight enemy types and three boss fights
+- 30 campaign levels with eight enemy types and six boss fights
 - Synthesised sound effects and music (Web Audio, no sample files)
 - Server-side high-score table
 - Level editor with test play; saved levels are playable by everyone on the server
@@ -87,7 +87,7 @@ Choose **LEVEL EDITOR** on the title screen.
 | `cmd/server` | Web server: static files plus the JSON API |
 | `cmd/client` | The game (WebAssembly): rendering, input, audio, editor |
 | `internal/game` | Platform-independent game simulation |
-| `internal/level` | Level format, validation and the 15 built-in levels |
+| `internal/level` | Level format, validation and the 30 built-in levels |
 | `web` | HTML and CSS; the build puts `game.wasm` and `wasm_exec.js` here |
 
 ### API

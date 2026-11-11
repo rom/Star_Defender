@@ -612,7 +612,7 @@ func (a *app) drawName() {
 	g := a.g
 	if a.victory {
 		g.text("VICTORY!", viewW/2, 120, 64, "#ff6", "center")
-		g.text("ALL 15 LEVELS CLEARED", viewW/2, 172, 18, "#fff", "center")
+		g.text("ALL "+strconv.Itoa(len(a.levels))+" LEVELS CLEARED", viewW/2, 172, 18, "#fff", "center")
 	} else {
 		g.text("GAME OVER", viewW/2, 120, 64, "#f44", "center")
 		g.text("YOU REACHED LEVEL "+strconv.Itoa(a.finalLevel), viewW/2, 172, 18, "#fff", "center")
